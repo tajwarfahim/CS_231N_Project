@@ -1,3 +1,5 @@
+# Author: Fahim Tajwar
+
 import numpy as np
 import pandas as pd
 from project_code.util import *
@@ -40,6 +42,7 @@ def get_well_label_from_given_label(given_label):
 
 def read_labels(file_names):
     label_map = {}
+    all_well_ids = []
     for file_name in file_names:
         data_frame = read_excel_file(file_name)
         num_rows, num_cols = data_frame.shape
@@ -48,7 +51,8 @@ def read_labels(file_names):
             well_label = get_well_label_from_given_label(data_frame.iloc[i, 1])
             if well_label in ALLOWED_LABELS:
                 label_map[well_id] = well_label
-    return label_map
+                all_well_ids.append(well_id)
+    return label_map, all_well_ids
 
 def find_type_of_labels(label_map):
     set_of_labels = set()
@@ -82,15 +86,12 @@ def get_max_key(dictionary):
 
     return maximum
 
-def create_label_vector(label_map, label_to_label_id):
-    max_well_id = get_max_key(label_map)
+def create_label_vector(label_map, label_to_label_id, all_well_ids):
     label_vector = []
-
-    for well_id in range(0, max_well_id):
-        if well_id in label_map:
-            label = label_map[well_id]
-            label_id = label_to_label_id[label]
-            label_vector.append(label_id)
+    for well_id in all_well_ids:
+        label = label_map[well_id]
+        label_id = label_to_label_id[label]
+        label_vector.append(label_id)
 
     return label_vector
 
@@ -108,10 +109,10 @@ def get_class_distribution(label_id_to_label_map, label_vector):
 # the abstract class that takes care of these things for us
 class Label_Reader:
     def __init__(self, file_names):
-        self.label_map = read_labels(file_names)
+        self.label_map, self.all_well_ids = read_labels(file_names)
         self.type_of_labels, self.set_of_labels = find_type_of_labels(self.label_map)
         self.label_to_label_id, self.label_id_to_label = enumerate_labels(self.set_of_labels)
-        self.label_vector = create_label_vector(self.label_map, self.label_to_label_id)
+        self.label_vector = create_label_vector(self.label_map, self.label_to_label_id, self.all_well_ids)
         self.num_data_points = len(self.label_map)
         self.class_distribution = get_class_distribution(self.label_id_to_label, self.label_vector)
 
@@ -139,3 +140,6 @@ class Label_Reader:
     def show_class_disribution_histogram(self):
         label_for_each_class = list(self.class_distribution.keys())
         plot_bar_graph_from_map(self.class_distribution, "Classes", "Frequency", label_for_each_class)
+
+    def get_all_well_ids(self):
+        return self.all_well_ids
