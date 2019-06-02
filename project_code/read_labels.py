@@ -4,6 +4,16 @@ from project_code.util import *
 
 # constants
 ALLOWED_LABELS = ['cell dies', 'grows sparse', 'grows dense']
+LABEL_CONVERSION_MAP = {'cell dies': 'cell dies',
+                        'dies': 'cell dies',
+                        'grows sparse': 'grows sparse',
+                        'sparse': 'grows sparse',
+                        'grows dense' : 'grows dense',
+                        'dense': 'grows dense',
+                        'transient cells': 'transient cells',
+                        'edge artifact': 'edge artifact',
+                        'debris' : 'debris'
+                        }
 
 # helper functions
 def read_excel_file(file_name):
@@ -28,7 +38,7 @@ def get_well_label_from_given_label(given_label):
     else:
         return given_label
 
-def read_labels(file_names, allowed_labels):
+def read_labels(file_names):
     label_map = {}
     for file_name in file_names:
         data_frame = read_excel_file(file_name)
@@ -127,5 +137,5 @@ class Label_Reader:
         return self.class_distribution
 
     def show_class_disribution_histogram(self):
-        label_for_each_class = list(self.label_map.values())
+        label_for_each_class = list(self.class_distribution.keys())
         plot_bar_graph_from_map(self.class_distribution, "Classes", "Frequency", label_for_each_class)
