@@ -1,4 +1,4 @@
-# author : Fahim Tajwar
+# author : Fahim Tajwar and Sandhini Agarwal
 
 # imports and initializations
 import torch
