@@ -116,6 +116,16 @@ def get_3D_tensors(image_names, num_stack):
 
     return torch.stack(listTens)
 
+def show_tensor_as_image(tensor):
+    image = tensor.clone().cpu()
+    image = image.view(*tensor.size())
+    image = transforms.ToPILImage()(image)
+    plt.imshow(image)
+
+    if title is not None:
+        plt.title(title)
+    plt.pause(5)
+
 # abstractions that help us generate the image tensors
 class Single_Image_Loader:
     def __init__(self, day, all_well_ids, prefix, suffix):
