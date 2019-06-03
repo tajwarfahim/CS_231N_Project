@@ -92,7 +92,7 @@ def read_images(min_well, max_well, min_day, max_day, prefix, suffix):
 def get_single_images_tensor(image_names):
     listTens = []
     for name in image_names:
-        img = Image.open(name)
+        img = Image.open(name).convert('RGB')
         t_img = Variable(to_tensor(scaler(img)))
         listTens.append(t_img)
 
@@ -103,7 +103,7 @@ def get_3D_tensors(image_names, num_stack):
     count = 0
     currT = []
     for name in image_names:
-        img = Image.open(name)
+        img = Image.open(name).convert('RGB')
         t_img = Variable(to_tensor(scaler(img)))
         count += 1
         currT.append(t_img)
@@ -115,16 +115,6 @@ def get_3D_tensors(image_names, num_stack):
             count = 0
 
     return torch.stack(listTens)
-
-def show_tensor_as_image(tensor):
-    image = tensor.clone().cpu()
-    image = image.view(*tensor.size())
-    image = transforms.ToPILImage()(image)
-    plt.imshow(image)
-
-    if title is not None:
-        plt.title(title)
-    plt.pause(5)
 
 # abstractions that help us generate the image tensors
 class Single_Image_Loader:
