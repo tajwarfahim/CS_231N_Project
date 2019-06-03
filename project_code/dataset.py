@@ -1,5 +1,12 @@
 # author: Fahim Tajwar
 
+# ideas taken from : https://stanford.edu/~shervine/blog/pytorch-how-to-generate-data-parallel
+# and https://pytorch.org/docs/stable/torchvision/transforms.html
+# and https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
+
+# however, none of the codes exactly match, so the code here was implemented line by line by the Author
+# taking inspiration from the sources
+
 # import and simple transformation initializations
 import torch
 import torch.nn as nn
@@ -24,18 +31,14 @@ to_tensor = transforms.ToTensor()
 
 # vannila dataset
 class Dataset(data.Dataset):
-  'Characterizes a dataset for PyTorch'
   def __init__(self, list_IDs, labels):
-        'Initialization'
         self.labels = labels
         self.list_IDs = list_IDs
 
   def __len__(self):
-        'Denotes the total number of samples'
         return len(self.list_IDs)
 
   def __getitem__(self, index):
-        'Generates one sample of data'
         ID = self.list_IDs[index]
         y = self.labels[ID]
         X = X_data[ID]
@@ -62,7 +65,7 @@ class Augmented_Dataset(data.Dataset):
 
         return X, y
 
-
+# experiments with different type of augmentation
 transform_horizontal_flip = transforms.Compose([
         transforms.ToPILImage(),
         transforms.RandomHorizontalFlip(),
@@ -71,12 +74,14 @@ transform_horizontal_flip = transforms.Compose([
     ])
 
 transfor_vertical_flip = transforms.Compose([
+        transforms.ToPILImage(),
         transforms.RandomVerticalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
 transform_flip = transforms.Compose([
+        transforms.ToPILImage(),
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
         transforms.ToTensor(),
@@ -84,9 +89,11 @@ transform_flip = transforms.Compose([
     ])
 
 transform_augmentation = transforms.Compose([
+        transforms.ToPILImage(),
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
+        transforms.RandomRotation(20)
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])

@@ -1,4 +1,6 @@
 # author : Fahim Tajwar and Sandhini Agarwal
+# this was implemented in total by the authors, except for the show_images function
+# that was taken from : https://gist.github.com/soply/f3eec2e79c165e39c9d540e916142ae1
 
 # imports and initializations
 import torch
@@ -67,7 +69,6 @@ def list_of_image_names_from_set_of_wells(all_well_ids, min_day, max_day, prefix
 
     return image_names
 
-# source: https://gist.github.com/soply/f3eec2e79c165e39c9d540e916142ae1
 def show_images(images, cols = 1, titles = None):
     assert((titles is None) or (len(images) == len(titles)))
     n_images = len(images)

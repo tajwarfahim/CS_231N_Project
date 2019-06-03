@@ -1,4 +1,7 @@
 # author : Fahim Tajwar
+# necessary util files, like showing plots and histograms
+# and showing a tensor as an image
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mp
@@ -38,3 +41,16 @@ def show_tensor_as_image(tensor, title = None):
     if title is not None:
         plt.title(title)
     plt.pause(5)
+
+def plot_x_vs_y(x_axis, y_axis, x_title = None, y_title = None):
+    plt.plot(x_axis, y_axis)
+    if x_title != None:
+        plt.xlabel(x_title)
+    if y_title != None:
+        plt.ylabel(y_title)
+
+    plt.show()
+
+def flatten(x):
+    N = x.shape[0]
+    return x.view(N,-1)
