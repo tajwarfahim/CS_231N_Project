@@ -96,6 +96,8 @@ class Our2DConvNetDesign1(nn.Module):
         return self.model(X)
 
 
+# our second model
+# architecture : [conv -> relu -> conv -> relu -> max pool] x M -> affine x N -> cross entropy loss
 class Our2DConvNetDesign2(nn.Module):
     def __init__(self, num_classes = 3, input_channels = 3, input_size = 224):
         super(Our2DConvNetDesign2, self).__init__()
@@ -146,3 +148,39 @@ class Our2DConvNetDesign2(nn.Module):
 
     def forward(self, X):
         return self.model(X)
+
+# deep neural network architectures
+class VGG16(nn.Module):
+    def __init__(self, input_size, num_classes):
+        super(VGG16, self).__init__()
+        self.model = models.vgg16(pretrained = False)
+
+    def forward(self, x):
+        return self.model(x)
+
+class Resnet18(nn.Module):
+    def __init__(self, input_size, num_classes):
+        super(Resnet18, self).__init__()
+        self.model = models.resnet18(pretrained = False)
+
+    def forward(self, x):
+        return self.model(x)
+
+class Inception_Net(nn.Module):
+    def __init__(self, input_size, num_classes):
+        super(Inception_Net, self).__init__()
+        self.model = models.inception_v3(pretrained = False)
+
+    def forward(self, x):
+        return self.model(x)
+
+class Squeeze_Net(nn.Module):
+    def __init__(self, input_size, num_classes):
+        super(Squeeze_Net, self).__init__()
+        self.model = models.squeezenet1_0(pretrained = False)
+
+    def forward(self, x):
+        return self.model(x)
+
+
+# 3D convolutional network
