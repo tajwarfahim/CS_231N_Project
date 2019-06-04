@@ -48,26 +48,40 @@ def list_of_image_names(min_well, max_well, min_day, max_day, prefix, suffix):
     day_values = range(min_day, max_day + 1)
 
     image_names = []
+    well_id_to_image_id_map = {}
+    image_id = 0
+
     for well_num in well_values:
         for day in day_values:
             well_str = get_well_specific_string_prefix(well_num)
             day_str = get_day_specific_string_prefix(day)
             name = prefix + well_str + str(well_num) + day_str + str(day) + suffix
             image_names.append(name)
+            if well_num not in well_id_to_image_id_map:
+                well_id_to_image_id_map[well_num] = image_id
 
-    return image_names
+        image_id += 1
+
+    return image_names, well_id_to_image_id_map
 
 def list_of_image_names_from_set_of_wells(all_well_ids, min_day, max_day, prefix, suffix):
     day_values = range(min_day, max_day + 1)
     image_names = []
+    well_id_to_image_id_map = {}
+    image_id = 0
+
     for well_num in all_well_ids:
         for day in day_values:
             well_str = get_well_specific_string_prefix(well_num)
             day_str = get_day_specific_string_prefix(day)
             name = prefix + well_str + str(well_num) + day_str + str(day) + suffix
             image_names.append(name)
+            if well_num not in well_id_to_image_id_map:
+                well_id_to_image_id_map[well_num] = image_id
 
-    return image_names
+        image_id += 1
+
+    return image_names, well_id_to_image_id_map
 
 def show_images(images, cols = 1, titles = None):
     assert((titles is None) or (len(images) == len(titles)))
@@ -82,7 +96,7 @@ def show_images(images, cols = 1, titles = None):
     plt.show()
 
 def read_images(min_well, max_well, min_day, max_day, prefix, suffix):
-    image_names = list_of_image_names(min_well, max_well, min_day, max_day, prefix, suffix)
+    image_names, _ = list_of_image_names(min_well, max_well, min_day, max_day, prefix, suffix)
     images = []
     for name in image_names:
         img = Image.open(name)
@@ -120,16 +134,22 @@ def get_3D_tensors(image_names, num_stack):
 # abstractions that help us generate the image tensors
 class Single_Image_Loader:
     def __init__(self, day, all_well_ids, prefix, suffix):
-        self.image_names = list_of_image_names_from_set_of_wells(all_well_ids, day, day, prefix, suffix)
+        self.image_names, self.well_id_to_image_id_map = list_of_image_names_from_set_of_wells(all_well_ids, day, day, prefix, suffix)
         self.image_tensor = get_single_images_tensor(self.image_names)
 
     def get_image_tensor(self):
         return self.image_tensor
 
+    def get_well_to_image_id_map(self):
+        return self.well_id_to_image_id_map
+
 class TimeCourse_Image_Loader:
     def __init__(self, min_day, max_day, all_well_ids, prefix, suffix):
-        self.image_names = list_of_image_names_from_set_of_wells(all_well_ids, min_day, max_day, prefix, suffix)
+        self.image_names, self.well_id_to_image_id_map = list_of_image_names_from_set_of_wells(all_well_ids, min_day, max_day, prefix, suffix)
         self.image_tensor = get_3D_tensors(self.image_names, (max_day - min_day + 1))
 
     def get_image_tensor(self):
         return self.image_tensor
+
+    def get_well_to_image_id_map(self):
+        return self.well_id_to_image_id_map

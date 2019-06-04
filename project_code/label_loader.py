@@ -44,6 +44,7 @@ def get_well_label_from_given_label(given_label):
 def read_labels(file_names):
     label_map = {}
     all_well_ids = []
+
     for file_name in file_names:
         data_frame = read_excel_file(file_name)
         num_rows, num_cols = data_frame.shape
@@ -53,6 +54,7 @@ def read_labels(file_names):
             if well_label in ALLOWED_LABELS:
                 label_map[well_id] = well_label
                 all_well_ids.append(well_id)
+
     return label_map, all_well_ids
 
 def find_type_of_labels(label_map):

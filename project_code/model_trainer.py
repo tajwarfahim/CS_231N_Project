@@ -56,7 +56,7 @@ def test_model(model, test_loader, label_id_to_label_map):
     print(frequency_map_per_class)
     plot_bar_graph_from_map(frequency_map_per_class, "Class", "Frequency", [label_id_to_label_map[key] for key in frequency_map_per_class.keys()])
 
-    correct_numbers_per_label_map = get_correct_numbers_per_label(correct_map, label_id_to_label_map):
+    correct_numbers_per_label_map = get_correct_numbers_per_label(correct_map, label_id_to_label_map)
     plot_bar_graph_from_map(correct_numbers_per_label_map, "Class", "Frequency", [label_id_to_label_map[key] for key in correct_numbers_per_label_map.keys()])
 
 

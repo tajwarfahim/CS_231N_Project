@@ -13,6 +13,7 @@ from torch.autograd import Variable
 from PIL import Image
 import matplotlib.image as mpimg
 from torch.utils import data
+import math as math
 
 def show_plot(array, x_title = None, y_title = None):
     x_axis = range(len(array))
@@ -54,3 +55,21 @@ def plot_x_vs_y(x_axis, y_axis, x_title = None, y_title = None):
 def flatten(x):
     N = x.shape[0]
     return x.view(N,-1)
+
+def get_dataset_split(Y_label, train_fraction = 0.8, validation_fraction = 0.1, test_fraction = 0.1):
+    ids = np.array(list(Y_label.keys()))
+    random_indices = np.random.choice(len(ids), len(ids), replace = False)
+
+    train_num = math.floor(train_fraction * len(ids))
+    training_indices = random_indices[0: train_num]
+    training_labels = ids[training_indices]
+
+    validation_num = math.floor(validation_fraction * len(ids))
+    validation_indices = random_indices[train_num : train_num + validation_num]
+    validation_labels = ids[validation_indices]
+
+    test_num = math.floor(test_fraction * len(ids))
+    testing_indices = random_indices[train_num + validation_num : train_num + validation_num + test_num]
+    testing_labels = ids[testing_indices]
+
+    return training_labels, validation_labels, testing_labels
