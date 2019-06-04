@@ -1,5 +1,6 @@
 # Author: Fahim Tajwar
 # this was in total implemented by the author
+# allows us to modify which classes we want to include in our dataset
 
 import numpy as np
 import pandas as pd
@@ -7,7 +8,10 @@ import torch
 from project_code.util import *
 
 # constants
+
+#ALLOWED_LABELS = ['cell dies', 'grows sparse', 'grows dense', 'transient cells', 'edge artifact', 'debris']
 ALLOWED_LABELS = ['cell dies', 'grows sparse', 'grows dense']
+
 LABEL_CONVERSION_MAP = {'cell dies': 'cell dies',
                         'dies': 'cell dies',
                         'grows sparse': 'grows sparse',

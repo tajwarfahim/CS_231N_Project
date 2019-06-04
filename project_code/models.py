@@ -51,7 +51,98 @@ class Flatten(nn.Module):
     def forward(self, X):
         return flatten(X)
 
-# our design of 2D convnet
-# architecture: [conv -> relu -> pool] x N -> affine x M ->
-#class Our2DConvNetDesign1(nn.Module):
-    #def
+# our first design of 2D convnet
+# architecture: [conv -> relu -> pool] x N -> affine x M -> weighted_cross_entropy_loss
+class Our2DConvNetDesign1(nn.Module):
+    def __init__(self, num_classes = 3, input_channels = 3, input_size = 224):
+        super(Our2DConvNetDesign1, self).__init__()
+        out_channel_1 = 16
+        out_channel_2 = 32
+        out_channel_3 = 64
+
+        conv_layer_1 = nn.Sequential(
+            nn.Conv2d(input_channels, out_channel_1, kernel_size = 5, padding = 2),
+            nn.BatchNorm2d(out_channel_1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        conv_layer_2 = nn.Sequential(
+            nn.Conv2d(out_channel_1, out_channel_2, kernel_size = 3, padding = 1),
+            nn.BatchNorm2d(out_channel_2),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        conv_layer_3 = nn.Sequential(
+            nn.Conv2d(out_channel_2, out_channel_3, kernel_size = 3, padding = 1),
+            nn.BatchNorm2d(out_channel_3),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        linear_layer_size = ((int(input_size / (2 * 2 * 2))) ** 2) * out_channel_3
+        fc = nn.Linear(linear_layer_size, num_classes)
+
+        self.model = nn.Sequential(
+            conv_layer_1,
+            conv_layer_2,
+            conv_layer_3,
+            Flatten(),
+            fc
+        )
+
+    def forward(self, X):
+        return self.model(X)
+
+
+class Our2DConvNetDesign2(nn.Module):
+    def __init__(self, num_classes = 3, input_channels = 3, input_size = 224):
+        super(Our2DConvNetDesign2, self).__init__()
+        out_channel_1 = {1 : 16, 2 : 16}
+        out_channel_2 = {1 : 32, 2 : 32}
+        out_channel_3 = {1 : 64, 2 : 64}
+
+        conv_layer_1 = nn.Sequential(
+            nn.Conv2d(input_channels, out_channel_1[1], kernel_size = 5, padding = 2),
+            nn.BatchNorm2d(out_channel_1[1]),
+            nn.ReLU(),
+            nn.Conv2d(out_channel_1[1], out_channel_1[2], kernel_size  = 3, padding = 1),
+            nn.BatchNorm2d(out_channel_1[2]),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        conv_layer_2 = nn.Sequential(
+            nn.Conv2d(out_channel_1[2], out_channel_2[1], kernel_size = 5, padding = 2),
+            nn.BatchNorm2d(out_channel_2[1]),
+            nn.ReLU(),
+            nn.Conv2d(out_channel_2[1], out_channel_2[2], kernel_size  = 3, padding = 1),
+            nn.BatchNorm2d(out_channel_2[2]),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        conv_layer_3 = nn.Sequential(
+            nn.Conv2d(out_channel_2[2], out_channel_3[1], kernel_size = 5, padding = 2),
+            nn.BatchNorm2d(out_channel_3[1]),
+            nn.ReLU(),
+            nn.Conv2d(out_channel_3[1], out_channel_3[2], kernel_size  = 3, padding = 1),
+            nn.BatchNorm2d(out_channel_3[2]),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        linear_layer_size = ((int(input_size / (2 * 2 * 2))) ** 2) * out_channel_3[2]
+        fc = nn.Linear(linear_layer_size, num_classes)
+
+        self.model = nn.Sequential(
+            conv_layer_1,
+            conv_layer_2,
+            conv_layer_3,
+            Flatten(),
+            fc
+        )
+
+    def forward(self, X):
+        return self.model(X)
