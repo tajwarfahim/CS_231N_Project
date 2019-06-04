@@ -14,12 +14,15 @@ from torch.utils import data
 from project_code.util import *
 
 # helper functions
-def get_correct_numbers_per_label(correct_map, label_id_to_label):
-    new_map = {}
-    for key in correct_map:
-        new_map[label_id_to_label[key]] = correct_map[key]
+def get_accuracy_per_class(correct_map, label_id_to_label, frequency_map_per_class):
+    accuracy_map = {}
+    correct_map_per_class = {}
 
-    return new_map
+    for key in correct_map:
+        correct_map_per_class[label_id_to_label[key]] = correct_map[key]
+        accuracy_map[label_id_to_label[key]] = float(correct_map[key]) / frequency_map_per_class[label_id_to_label[key]]
+
+    return accuracy_map, correct_map_per_class
 
 def test_model(model, test_loader, label_id_to_label_map):
     correct = 0
@@ -34,10 +37,10 @@ def test_model(model, test_loader, label_id_to_label_map):
         total += labels.size(0)
         correct += (predicted == labels).sum()
 
-        if labels[0].item() in frequency_map_per_class:
-            frequency_map_per_class[labels[0].item()] += 1
+        if label_id_to_label_map[labels[0].item()] in frequency_map_per_class:
+            frequency_map_per_class[label_id_to_label_map[labels[0].item()]] += 1
         else:
-            frequency_map_per_class[labels[0].item()] = 1
+            frequency_map_per_class[label_id_to_label_map[labels[0].item()]] = 1
 
         if labels[0].item() not in correct_map:
             if predicted[0] == labels[0]:
@@ -53,12 +56,13 @@ def test_model(model, test_loader, label_id_to_label_map):
     print("accuracy : %f" % accuracy)
 
     print("")
-    print(frequency_map_per_class)
-    plot_bar_graph_from_map(frequency_map_per_class, "Class", "Frequency", [label_id_to_label_map[key] for key in frequency_map_per_class.keys()])
+    print("Frequency per class: ", frequency_map_per_class)
+    plot_bar_graph_from_map(frequency_map_per_class, "Class", "Frequency", [key for key in frequency_map_per_class.keys()])
 
-    correct_numbers_per_label_map = get_correct_numbers_per_label(correct_map, label_id_to_label_map)
-    print(correct_numbers_per_label_map)
-    plot_bar_graph_from_map(correct_numbers_per_label_map, "Class", "Frequency", [key for key in correct_numbers_per_label_map.keys()])
+    accuracy_per_class_map, correct_map_per_class_map = get_accuracy_per_class(correct_map, label_id_to_label_map, frequency_map_per_class)
+    print("Number of datapoints we got correct per class", correct_map_per_class_map)
+    print("Accuracy per class", accuracy_per_class_map)
+    plot_bar_graph_from_map(accuracy_per_class_map, "Class", "accuracy", [key for key in accuracy_per_class_map.keys()])
 
 
 # abstract class model to train and test our different models
