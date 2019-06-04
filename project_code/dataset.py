@@ -43,7 +43,8 @@ class Dataset(data.Dataset):
   def __getitem__(self, index):
         ID = self.list_IDs[index]
         y = self.labels[ID]
-        X = self.X_data[self.well_id_to_image_id_map[ID]]
+        image_id = self.well_id_to_image_id_map[ID]
+        X = self.X_data[image_id]
         return X, y
 
 # dataset with augmentation possible
@@ -61,7 +62,8 @@ class Augmented_Dataset(data.Dataset):
     def __getitem__(self, index):
         ID = self.list_IDs[index]
         y = self.labels[ID]
-        X = self.X_data[self.well_id_to_image_id_map[ID]]
+        image_id = self.well_id_to_image_id_map[ID]
+        X = self.X_data[image_id]
 
         if self.transform != None:
             X = self.transform(X)
@@ -128,3 +130,10 @@ transform_augmentation_normalization = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
+
+transform_normalization = transforms.Compose([
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+
+# our dedicated final choice
+final_transformation_choice = transform_flip_normalization

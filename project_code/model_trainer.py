@@ -57,12 +57,13 @@ def test_model(model, test_loader, label_id_to_label_map):
     plot_bar_graph_from_map(frequency_map_per_class, "Class", "Frequency", [label_id_to_label_map[key] for key in frequency_map_per_class.keys()])
 
     correct_numbers_per_label_map = get_correct_numbers_per_label(correct_map, label_id_to_label_map)
-    plot_bar_graph_from_map(correct_numbers_per_label_map, "Class", "Frequency", [label_id_to_label_map[key] for key in correct_numbers_per_label_map.keys()])
+    print(correct_numbers_per_label_map)
+    plot_bar_graph_from_map(correct_numbers_per_label_map, "Class", "Frequency", [key for key in correct_numbers_per_label_map.keys()])
 
 
 # abstract class model to train and test our different models
 class Model:
-    def __init__(self, model, training_set, batch_size, learning_rate, label_id_to_label_map, imbalanced_class, num_epochs = 10, verbose = True):
+    def __init__(self, model, training_set, batch_size, learning_rate, label_id_to_label_map, weight = None, imbalanced_class = False, num_epochs = 10, verbose = True):
         self.model = model
         self.training_set = training_set
         self.batch_size = batch_size
@@ -71,14 +72,16 @@ class Model:
         self.verbose = verbose
         self.label_id_to_label_map = label_id_to_label_map
         self.imbalanced_class = imbalanced_class
+        self.weight = weight
 
     def train(self):
         model, learning_rate, num_epochs, verbose = self.model, self.learning_rate, self.num_epochs, self.verbose
-        train_loader = torch.utils.data.DataLoader(dataset = self.training_set,
-                                           batch_size = self.batch_size,
-                                           shuffle=True)
+        train_loader = torch.utils.data.DataLoader(dataset = self.training_set, batch_size = self.batch_size, shuffle=True)
 
         criterion = nn.CrossEntropyLoss()
+        if self.imbalanced_class:
+            criterion = nn.CrossEntropyLoss(self.weight)
+
         optimizer = torch.optim.SGD(model.parameters(), lr = learning_rate)
         loss_history = []
 
@@ -108,7 +111,7 @@ class Model:
         if verbose:
             x_axis = range(num_epochs)
             y_axis = loss_history
-            plot_x_vs_y(x_axis, y_axis, x_label = "Training epoch", y_label = "Average Training Loss")
+            plot_x_vs_y(x_axis, y_axis, x_title = "Training epoch", y_title= "Average Training Loss")
             train_loader_testing = torch.utils.data.DataLoader(dataset = self.training_set,
                                                batch_size = 1,
                                                shuffle=True)

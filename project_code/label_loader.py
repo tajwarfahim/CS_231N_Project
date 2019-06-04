@@ -3,6 +3,7 @@
 
 import numpy as np
 import pandas as pd
+import torch
 from project_code.util import *
 
 # constants
@@ -109,6 +110,30 @@ def get_class_distribution(label_id_to_label_map, label_vector):
 
     return class_distribution
 
+def get_max_val(dictionary):
+    maximum = float('-inf')
+    for i in dictionary:
+        if i > maximum:
+            maximum = i
+
+    return maximum
+
+def calculate_weight_vector(label_vector):
+    max_label = max(label_vector)
+    weight_vector = [i for i in range(max_label + 1)]
+    map = {}
+    for i in label_vector:
+        if i not in map:
+            map[i] = 1
+        else:
+            map[i] += 1
+
+    max_val = get_max_val(map)
+    for i in map:
+        weight_vector[i] = float(max_val) / map[i]
+
+    return torch.tensor(weight_vector)
+
 # the abstract class that takes care of these things for us
 class Label_Reader:
     def __init__(self, file_names):
@@ -118,6 +143,7 @@ class Label_Reader:
         self.label_vector = create_label_vector(self.label_map, self.label_to_label_id, self.all_well_ids)
         self.num_data_points = len(self.label_map)
         self.class_distribution = get_class_distribution(self.label_id_to_label, self.label_vector)
+        self.weight_vector = calculate_weight_vector(self.label_vector)
 
     def get_label_vector(self):
         return self.label_vector
@@ -127,6 +153,9 @@ class Label_Reader:
 
     def get_label_id_to_label_map(self):
         return self.label_id_to_label
+
+    def get_label_to_label_id_map(self):
+        return self.label_to_label_id
 
     def get_number_of_different_labels(self):
         return self.type_of_labels
@@ -146,3 +175,6 @@ class Label_Reader:
 
     def get_all_well_ids(self):
         return self.all_well_ids
+
+    def get_weight_vector(self):
+        return self.weight_vector

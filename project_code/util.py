@@ -32,6 +32,7 @@ def plot_bar_graph_from_map(map, x_label, y_label, label_for_each_class):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.xticks(range(len(map)), label_for_each_class)
+    plt.show()
 
 def show_tensor_as_image(tensor, title = None):
     image = tensor.clone().cpu()
