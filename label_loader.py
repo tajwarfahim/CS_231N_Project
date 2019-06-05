@@ -11,6 +11,7 @@ from util import *
 
 #ALLOWED_LABELS = ['cell dies', 'grows sparse', 'grows dense', 'transient cells', 'edge artifact', 'debris']
 ALLOWED_LABELS = ['cell dies', 'grows sparse', 'grows dense']
+#ALLOWED_LABELS = ['cell dies', 'grows sparse']
 
 LABEL_CONVERSION_MAP = {'cell dies': 'cell dies',
                         'dies': 'cell dies',

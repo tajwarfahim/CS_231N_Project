@@ -58,7 +58,7 @@ def flatten(x):
     N = x.shape[0]
     return x.view(N,-1)
 
-def get_dataset_split(Y_label, train_fraction = 0.8, validation_fraction = 0.1, test_fraction = 0.1):
+def get_dataset_split(Y_label, train_fraction = 1.0, validation_fraction = 0.1, test_fraction = 0.1):
     ids = np.array(list(Y_label.keys()))
     random_indices = np.random.choice(len(ids), len(ids), replace = False)
 
@@ -97,19 +97,15 @@ def reverse_map(dictionary):
 
 
 # computes the saliency map
-# code is from assignment 3
-# however note that this is not code given in the assignment as starter code,
-# but code actually written by the author for that assignment
 
 def compute_saliency_maps(X, y, model):
-    model.eval()
     X.requires_grad_()
     
-    scores = model(X)
-    y_reshaped = y.view(-1, 1)
+    scores = model.forward(X)
+    y_reshaped = y.view(-1, 1).type(torch.LongTensor)
     correct_scores = scores.gather(1, y_reshaped).squeeze()
     
-    correct_scores.backward(torch.ones(5))
+    correct_scores.backward(torch.ones(X.shape[0]))
     
     abs_gradient = X.grad.data.abs()
     saliency, _ = torch.max(abs_gradient, dim = 1)
@@ -118,17 +114,18 @@ def compute_saliency_maps(X, y, model):
     return saliency
 
 
+# code adapted from assignment 3
 def show_saliency_maps(X_tensor, y_tensor, model):
     saliency = compute_saliency_maps(X_tensor, y_tensor, model)
 
     # Convert the saliency map from Torch Tensor to numpy array and show images
     # and saliency maps together.
     saliency = saliency.numpy()
-    N = X.shape[0]
+    N = X_tensor.shape[0]
     
-    for i in range(10):
+    for i in range(2):
         plt.subplot(2, N, i + 1)
-        plt.imshow(X[i])
+        plt.imshow(transforms.ToPILImage()(X_tensor[i]))
         plt.axis('off')
         plt.subplot(2, N, N + i + 1)
         plt.imshow(saliency[i], cmap=plt.cm.hot)
@@ -136,3 +133,15 @@ def show_saliency_maps(X_tensor, y_tensor, model):
         plt.gcf().set_size_inches(12, 5)
         
     plt.show()
+    
+    
+def get_X_and_y_tensors_for_saliency_map(image_tensor, Y_label, well_id_to_image_id):
+    image_id_to_well_id = reverse_map(well_id_to_image_id)
+    
+    X = image_tensor
+    y = np.ones(X.shape[0])
+    for i in range(X.shape[0]):
+        well_id = image_id_to_well_id[i]
+        y[i] = Y_label[well_id]
+    
+    return X, torch.from_numpy(y)

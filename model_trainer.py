@@ -12,6 +12,7 @@ import matplotlib.image as mpimg
 import numpy as np
 from torch.utils import data
 from util import *
+import collections
 
 # helper functions
 def get_accuracy_per_class(correct_map, label_id_to_label, frequency_map_per_class):
@@ -24,13 +25,15 @@ def get_accuracy_per_class(correct_map, label_id_to_label, frequency_map_per_cla
 
     return accuracy_map, correct_map_per_class
 
-def test_model(model, test_loader, label_id_to_label_map, verbose = True, device = 'cpu'):
+def test_model(model, test_loader, label_id_to_label_map, verbose = True, device = 'cpu', error_analysis = False):
     correct = 0
     total = 0
     correct_map = {}
     frequency_map_per_class  = {}
+    error_analysis = collections.defaultdict(set)
 
     for images, labels in test_loader:
+        image = images[0]
         images = Variable(images).to(device)
         output = model(images).to(device)
         _, predicted = torch.max(output.data, 1)
@@ -51,9 +54,16 @@ def test_model(model, test_loader, label_id_to_label_map, verbose = True, device
         else:
             if predicted[0] == labels[0]:
                 correct_map[labels[0].item()] += 1
+                
+                
+        if predicted[0] != labels[0]:
+            prediction = predicted[0].item()
+            target = labels[0].item()
+            error_analysis[target].add((prediction, image))
+            
 
     accuracy = (100.0 * correct) / total
-    accuracy_per_class_map, correct_map_per_class_map = get_accuracy_per_class(correct_map, label_id_to_label_map, frequency_map_per_class)
+    accuracy_per_class_map, correct_map_per_class_map = get_accuracy_per_class(correct_map, label_id_to_label_map,                                                                                              frequency_map_per_class)
 
     if verbose:
         print("accuracy : %f" % accuracy)
@@ -71,7 +81,10 @@ def test_model(model, test_loader, label_id_to_label_map, verbose = True, device
     for image_class in accuracy_per_class_map:
         composite_accuracy *= accuracy_per_class_map[image_class]
 
-    return composite_accuracy
+    if error_analysis:
+        return composite_accuracy, error_analysis
+    else:
+        return composite_accuracy
 
 # abstract class model to train and test our different models
 class Model:
@@ -128,13 +141,24 @@ class Model:
             train_loader_testing = torch.utils.data.DataLoader(dataset = self.training_set,
                                                batch_size = 1,
                                                shuffle=True)
-            return self.test(train_loader_testing, verbose, device)
+            composite_accuracy, self.error_analysis = self.test(train_loader_testing, verbose, device, error_analysis = True)
+            return composite_accuracy
 
 
-    def test(self, test_loader, verbose = True, device = "cpu"):
-        return test_model(self.model, test_loader, self.label_id_to_label_map, verbose, device)
+    def test(self, test_loader, verbose = True, device = "cpu", error_analysis = False):
+        composite_accuracy, error = test_model(self.model, test_loader, self.label_id_to_label_map, verbose, device, True)
+        if error_analysis:
+            return composite_accuracy, error
+        else:
+            return composite_accuracy
+    
+    def get_error_analysis(self, test_loader, verbose = True, device = "cpu"):
+        composite_accuracy, error = test_model(self.model, test_loader, self.label_id_to_label_map, verbose, device, True)
+        return error
 
-
+    def get_trained_model(self):
+        return self.model
+    
 # our abstract class to do the cross validation for us
 # note that we only can manipulate the hyperparameter learning rate in our current setting
 
