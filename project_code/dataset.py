@@ -16,7 +16,7 @@ from torch.autograd import Variable
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from label_loader import *
+from project_code.label_loader import *
 import numpy as np
 from torch.utils import data
 
