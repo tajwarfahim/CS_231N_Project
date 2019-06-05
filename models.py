@@ -179,7 +179,7 @@ class Simple3DConvNet(nn.Module):
             nn.BatchNorm3d(output_channel),
             nn.ReLU(),
             nn.MaxPool3d(2)
-            nn.Dropout(p = 0.2)
+            #nn.Dropout(p = 0.2)
         )
         
         layer2 = nn.Sequential(
@@ -187,7 +187,7 @@ class Simple3DConvNet(nn.Module):
             nn.BatchNorm3d(output_channel * 2),
             nn.ReLU(),
             nn.MaxPool3d(2),
-            nn.Dropout(p = 0.2)
+            #nn.Dropout(p = 0.2)
         )
         
         layer3 = nn.Sequential(
@@ -195,7 +195,7 @@ class Simple3DConvNet(nn.Module):
             nn.BatchNorm3d(output_channel * 4),
             nn.ReLU(),
             nn.MaxPool3d(2),
-            nn.Dropout(p = 0.2)
+            #nn.Dropout(p = 0.2)
         )
 
         linear_layer_size = input_size * input_size * input_time_depth * output_channel

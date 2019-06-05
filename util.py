@@ -94,3 +94,45 @@ def reverse_map(dictionary):
         new_dictionary[dictionary[i]] = i
     
     return new_dictionary
+
+
+# computes the saliency map
+# code is from assignment 3
+# however note that this is not code given in the assignment as starter code,
+# but code actually written by the author for that assignment
+
+def compute_saliency_maps(X, y, model):
+    model.eval()
+    X.requires_grad_()
+    
+    scores = model(X)
+    y_reshaped = y.view(-1, 1)
+    correct_scores = scores.gather(1, y_reshaped).squeeze()
+    
+    correct_scores.backward(torch.ones(5))
+    
+    abs_gradient = X.grad.data.abs()
+    saliency, _ = torch.max(abs_gradient, dim = 1)
+    saliency = saliency.squeeze()
+    
+    return saliency
+
+
+def show_saliency_maps(X_tensor, y_tensor, model):
+    saliency = compute_saliency_maps(X_tensor, y_tensor, model)
+
+    # Convert the saliency map from Torch Tensor to numpy array and show images
+    # and saliency maps together.
+    saliency = saliency.numpy()
+    N = X.shape[0]
+    
+    for i in range(10):
+        plt.subplot(2, N, i + 1)
+        plt.imshow(X[i])
+        plt.axis('off')
+        plt.subplot(2, N, N + i + 1)
+        plt.imshow(saliency[i], cmap=plt.cm.hot)
+        plt.axis('off')
+        plt.gcf().set_size_inches(12, 5)
+        
+    plt.show()
