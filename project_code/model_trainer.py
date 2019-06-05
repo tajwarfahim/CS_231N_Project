@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from torch.utils import data
-from util import *
+from project_code.util import *
 
 # helper functions
 def get_accuracy_per_class(correct_map, label_id_to_label, frequency_map_per_class):

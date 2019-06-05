@@ -66,6 +66,7 @@ def get_dataset_split(Y_label, train_fraction = 0.8, validation_fraction = 0.1, 
     training_indices = random_indices[0: train_num]
     training_labels = ids[training_indices]
 
+<<<<<<< HEAD:util.py
     validation_num = int(math.floor(validation_fraction * len(ids)))
     #validation_indices = random_indices[train_num : train_num + validation_num]
     validation_indices = random_indices[0 : validation_num]
@@ -74,6 +75,14 @@ def get_dataset_split(Y_label, train_fraction = 0.8, validation_fraction = 0.1, 
     test_num = int(math.floor(test_fraction * len(ids)))
     #testing_indices = random_indices[train_num + validation_num : train_num + validation_num + test_num]
     testing_indices = random_indices[train_num - test_num : train_num]
+=======
+    validation_num = math.floor(validation_fraction * len(ids))
+    validation_indices = random_indices[train_num : train_num + validation_num]
+    validation_labels = ids[validation_indices]
+
+    test_num = math.floor(test_fraction * len(ids))
+    testing_indices = random_indices[train_num + validation_num : train_num + validation_num + test_num]
+>>>>>>> 5d16dde1393905958c62c8b419e68f6714d7ab3a:project_code/util.py
     testing_labels = ids[testing_indices]
 
     return training_labels, validation_labels, testing_labels
