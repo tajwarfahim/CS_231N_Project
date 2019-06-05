@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 import torch
-from project_code.util import *
+from util import *
 
 # constants
 

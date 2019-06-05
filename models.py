@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from torch.utils import data
-from project_code.util import *
-from project_code.vgg import *
+from util import *
+from vgg import *
 
 # baseline model
 class LogisticRegression(nn.Module):
