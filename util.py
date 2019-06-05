@@ -1,6 +1,7 @@
 # author : Fahim Tajwar
 # necessary util files, like showing plots and histograms
-# and showing a tensor as an image
+# and showing a tensor as an image, splitting dataset, setting initial weights
+# that are generally used for various purposes, not restricted to any single class
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -84,3 +85,12 @@ def weights_init_normal(m):
         y = m.in_features
         m.weight.data.normal_(0.0,1/np.sqrt(y))
         m.bias.data.fill_(0)
+        
+
+# only works for one on one maps
+def reverse_map(dictionary):
+    new_dictionary = {}
+    for i in dictionary:
+        new_dictionary[dictionary[i]] = i
+    
+    return new_dictionary

@@ -178,8 +178,8 @@ class Simple3DConvNet(nn.Module):
             nn.Conv3d(input_channels, output_channel, kernel_size=(3,3,3),stride=1,padding=(1,1,1)),
             nn.BatchNorm3d(output_channel),
             nn.ReLU(),
-            #nn.MaxPool3d(2)
-            #nn.Dropout(p = 0.2)
+            nn.MaxPool3d(2)
+            nn.Dropout(p = 0.2)
         )
         
         layer2 = nn.Sequential(
@@ -203,8 +203,8 @@ class Simple3DConvNet(nn.Module):
 
         self.model = nn.Sequential(
             layer1,
-            #layer2,
-            #layer3,
+            layer2,
+            layer3,
             Flatten(),
             fc
         )
