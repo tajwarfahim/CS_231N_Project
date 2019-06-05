@@ -24,15 +24,15 @@ def get_accuracy_per_class(correct_map, label_id_to_label, frequency_map_per_cla
 
     return accuracy_map, correct_map_per_class
 
-def test_model(model, test_loader, label_id_to_label_map, verbose = True):
+def test_model(model, test_loader, label_id_to_label_map, verbose = True, device = 'cpu'):
     correct = 0
     total = 0
     correct_map = {}
     frequency_map_per_class  = {}
 
     for images, labels in test_loader:
-        images = Variable(images)
-        output = model(images)
+        images = Variable(images).to(device)
+        output = model(images).to(device)
         _, predicted = torch.max(output.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum()
@@ -76,7 +76,7 @@ def test_model(model, test_loader, label_id_to_label_map, verbose = True):
 # abstract class model to train and test our different models
 class Model:
     def __init__(self, model, training_set, batch_size, learning_rate, label_id_to_label_map, weight = None,
-                imbalanced_class = False, num_epochs = 25, verbose = True):
+                imbalanced_class = False, num_epochs = 25, verbose = True, device = "cpu"):
         self.model = model
         self.training_set = training_set
         self.batch_size = batch_size
@@ -87,7 +87,7 @@ class Model:
         self.imbalanced_class = imbalanced_class
         self.weight = weight
 
-    def train(self):
+    def train(self, device = "cpu"):
         model, learning_rate, num_epochs, verbose = self.model, self.learning_rate, self.num_epochs, self.verbose
         train_loader = torch.utils.data.DataLoader(dataset = self.training_set, batch_size = self.batch_size, shuffle=True)
 
@@ -102,8 +102,8 @@ class Model:
             running_loss = 0
             num_iters = 0
             for i, (images, labels) in enumerate(train_loader):
-                images = Variable(images)
-                labels = Variable(labels)
+                images = Variable(images).to(device)
+                labels = Variable(labels).to(device)
 
                 optimizer.zero_grad()
                 outputs = model(images)
@@ -128,11 +128,11 @@ class Model:
             train_loader_testing = torch.utils.data.DataLoader(dataset = self.training_set,
                                                batch_size = 1,
                                                shuffle=True)
-            return self.test(train_loader_testing, verbose)
+            return self.test(train_loader_testing, verbose, device)
 
 
-    def test(self, test_loader, verbose = True):
-        return test_model(self.model, test_loader, self.label_id_to_label_map, verbose)
+    def test(self, test_loader, verbose = True, device = "cpu"):
+        return test_model(self.model, test_loader, self.label_id_to_label_map, verbose, device)
 
 
 # our abstract class to do the cross validation for us
@@ -140,7 +140,7 @@ class Model:
 
 class Hyperparameter_Tuner:
     def __init__(self, given_model, training_set, validation_loader, batch_size, learning_rates, label_id_to_label_map,
-                weight = None, imbalanced_class = False, num_epochs = 10):
+                weight = None, imbalanced_class = False, num_epochs = 10, device = "cpu"):
 
         assert(len(learning_rates) > 0)
 
