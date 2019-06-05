@@ -12,6 +12,7 @@ import matplotlib.image as mpimg
 import numpy as np
 from torch.utils import data
 from project_code.util import *
+from project_code.vgg import *
 
 # baseline model
 class LogisticRegression(nn.Module):
@@ -151,36 +152,37 @@ class Our2DConvNetDesign2(nn.Module):
 
 # deep neural network architectures
 class VGG16(nn.Module):
-    def __init__(self, input_size, num_classes):
+    def __init__(self, num_classes):
         super(VGG16, self).__init__()
-        self.model = models.vgg16(pretrained = False)
-
-    def forward(self, x):
-        return self.model(x)
-
-class Resnet18(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(Resnet18, self).__init__()
-        self.model = models.resnet18(pretrained = False)
-
-    def forward(self, x):
-        return self.model(x)
-
-class Inception_Net(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(Inception_Net, self).__init__()
-        self.model = models.inception_v3(pretrained = False)
-
-    def forward(self, x):
-        return self.model(x)
-
-class Squeeze_Net(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(Squeeze_Net, self).__init__()
-        self.model = models.squeezenet1_0(pretrained = False)
+        self.model = vgg16_bn()
 
     def forward(self, x):
         return self.model(x)
 
 
-# 3D convolutional network
+# 3D convolutional networks
+
+# first, a very simple one, just as a baseline
+class Simple3DConvNet(nn.Module):
+    def __init__(self, num_classes = 3, input_channels = 3, input_size = 224, input_time_depth = 5):
+        super(Simple3DConvNet, self).__init__()
+        output_channel = 8
+        assert(input_size % 2 == 0)
+
+        layer1 = nn.Sequential(
+            nn.Conv3d(input_channels, output_channel, kernel_size = 5, stride = 1, padding = 2),
+            nn.BatchNorm3d(output_channel),
+            nn.ReLU(),
+        )
+
+        linear_layer_size = input_size * input_size * input_time_depth * output_channel
+        fc = nn.Linear(linear_layer_size, num_classes)
+
+        self.model = nn.Sequential(
+            layer1,
+            Flatten(),
+            fc
+        )
+
+    def forward(self, x):
+        return self.model(x)

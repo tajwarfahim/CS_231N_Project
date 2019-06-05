@@ -136,4 +136,5 @@ transform_normalization = transforms.Compose([
 ])
 
 # our dedicated final choice
+# this one performs best
 final_transformation_choice = transform_flip_normalization
