@@ -11,8 +11,14 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from torch.utils import data
+<<<<<<< HEAD:models.py
+from util import *
+from vgg import *
+from util import *
+=======
 from project_code.util import *
 from project_code.vgg import *
+>>>>>>> 5d16dde1393905958c62c8b419e68f6714d7ab3a:project_code/models.py
 
 # baseline model
 class LogisticRegression(nn.Module):
@@ -92,6 +98,8 @@ class Our2DConvNetDesign1(nn.Module):
             Flatten(),
             fc
         )
+        
+        self.model.apply(weights_init_normal)
 
     def forward(self, X):
         return self.model(X)
@@ -146,6 +154,8 @@ class Our2DConvNetDesign2(nn.Module):
             Flatten(),
             fc
         )
+        
+        self.model.apply(weights_init_normal)
 
     def forward(self, X):
         return self.model(X)
@@ -155,6 +165,7 @@ class VGG16(nn.Module):
     def __init__(self, num_classes):
         super(VGG16, self).__init__()
         self.model = vgg16_bn()
+        self.model.apply(weights_init_normal)
 
     def forward(self, x):
         return self.model(x)
@@ -162,17 +173,34 @@ class VGG16(nn.Module):
 
 # 3D convolutional networks
 
-# first, a very simple one, just as a baseline
 class Simple3DConvNet(nn.Module):
     def __init__(self, num_classes = 3, input_channels = 3, input_size = 224, input_time_depth = 5):
         super(Simple3DConvNet, self).__init__()
-        output_channel = 8
+        output_channel = 16
         assert(input_size % 2 == 0)
 
         layer1 = nn.Sequential(
-            nn.Conv3d(input_channels, output_channel, kernel_size = 5, stride = 1, padding = 2),
+            nn.Conv3d(input_channels, output_channel, kernel_size=(3,3,3),stride=1,padding=(1,1,1)),
             nn.BatchNorm3d(output_channel),
             nn.ReLU(),
+            nn.MaxPool3d(2)
+            nn.Dropout(p = 0.2)
+        )
+        
+        layer2 = nn.Sequential(
+            nn.Conv3d(output_channel, output_channel * 2, kernel_size=(3,3,3),stride=1,padding=(1,1,1)),
+            nn.BatchNorm3d(output_channel * 2),
+            nn.ReLU(),
+            nn.MaxPool3d(2),
+            nn.Dropout(p = 0.2)
+        )
+        
+        layer3 = nn.Sequential(
+            nn.Conv3d(output_channel * 2, output_channel * 4, kernel_size=(3,3,3),stride=1,padding=(1,1,1)),
+            nn.BatchNorm3d(output_channel * 4),
+            nn.ReLU(),
+            nn.MaxPool3d(2),
+            nn.Dropout(p = 0.2)
         )
 
         linear_layer_size = input_size * input_size * input_time_depth * output_channel
@@ -180,9 +208,15 @@ class Simple3DConvNet(nn.Module):
 
         self.model = nn.Sequential(
             layer1,
+            layer2,
+            layer3,
             Flatten(),
             fc
         )
+        
+        self.model.apply(weights_init_normal)
 
     def forward(self, x):
         return self.model(x)
+    
+    

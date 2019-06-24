@@ -1,6 +1,7 @@
 # author : Fahim Tajwar
 # necessary util files, like showing plots and histograms
-# and showing a tensor as an image
+# and showing a tensor as an image, splitting dataset, setting initial weights
+# that are generally used for various purposes, not restricted to any single class
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -61,16 +62,44 @@ def get_dataset_split(Y_label, train_fraction = 0.8, validation_fraction = 0.1, 
     ids = np.array(list(Y_label.keys()))
     random_indices = np.random.choice(len(ids), len(ids), replace = False)
 
-    train_num = math.floor(train_fraction * len(ids))
+    train_num = int(math.floor(train_fraction * len(ids)))
     training_indices = random_indices[0: train_num]
     training_labels = ids[training_indices]
 
+<<<<<<< HEAD:util.py
+    validation_num = int(math.floor(validation_fraction * len(ids)))
+    #validation_indices = random_indices[train_num : train_num + validation_num]
+    validation_indices = random_indices[0 : validation_num]
+    validation_labels = ids[validation_indices]
+
+    test_num = int(math.floor(test_fraction * len(ids)))
+    #testing_indices = random_indices[train_num + validation_num : train_num + validation_num + test_num]
+    testing_indices = random_indices[train_num - test_num : train_num]
+=======
     validation_num = math.floor(validation_fraction * len(ids))
     validation_indices = random_indices[train_num : train_num + validation_num]
     validation_labels = ids[validation_indices]
 
     test_num = math.floor(test_fraction * len(ids))
     testing_indices = random_indices[train_num + validation_num : train_num + validation_num + test_num]
+>>>>>>> 5d16dde1393905958c62c8b419e68f6714d7ab3a:project_code/util.py
     testing_labels = ids[testing_indices]
 
     return training_labels, validation_labels, testing_labels
+
+
+def weights_init_normal(m):
+    classname = m.__class__.__name__
+    if classname.find('Linear') != -1:
+        y = m.in_features
+        m.weight.data.normal_(0.0,1/np.sqrt(y))
+        m.bias.data.fill_(0)
+        
+
+# only works for one on one maps
+def reverse_map(dictionary):
+    new_dictionary = {}
+    for i in dictionary:
+        new_dictionary[dictionary[i]] = i
+    
+    return new_dictionary
